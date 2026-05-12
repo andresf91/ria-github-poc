@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getUserDetails, getUserActivity, getUserRepositories } from '../services/github'
 import Cargando from '../components/Cargando'
-import MensajeError from '../components/ErrorMessage'
+import MensajeError from '../components/MensajeError'
 
 export default function DetalleUsuario() {
   const { username } = useParams()
