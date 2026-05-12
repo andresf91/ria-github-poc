@@ -1,0 +1,121 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Bootstrap overrides para tema oscuro */
+.btn-primary {
+  background-color: #238636;
+  border-color: #238636;
+}
+
+.btn-primary:hover {
+  background-color: #2ea043;
+  border-color: #2ea043;
+}
+
+.btn-outline-light {
+  color: #c9d1d9;
+  border-color: #30363d;
+}
+
+.btn-outline-light:hover {
+  background-color: #30363d;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+.card {
+  background-color: #161b22;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+.card-text {
+  color: #8b949e;
+}
+
+.form-control {
+  background-color: #0d1117;
+  border-color: #30363d;
+  color: #c9d1d9;
+}
+
+.form-control:focus {
+  background-color: #0d1117;
+  border-color: #58a6ff;
+  color: #c9d1d9;
+  box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+.navbar {
+  background-color: #0d1117 !important;
+  border-bottom: 1px solid #30363d;
+}
+
+.navbar-brand {
+  color: #58a6ff !important;
+  font-weight: 600;
+}
+
+.nav-link {
+  color: #8b949e !important;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #58a6ff !important;
+}
+
+.nav-link.active {
+  color: #58a6ff !important;
+  border-bottom: 2px solid #58a6ff;
+}
+
+.badge {
+  background-color: #30363d;
+  color: #c9d1d9;
+}
+
+a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.spinner-border {
+  color: #58a6ff;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
