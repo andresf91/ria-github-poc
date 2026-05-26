@@ -35,6 +35,21 @@ export default function Home() {
 
   return (
     <div className="container py-5">
+      <div className="row mb-4">
+        <div className="col-lg-8 mx-auto text-center">
+          <img
+            src="/logo.png"
+            alt="GitHub All Stars"
+            style={{
+              width: '140px',
+              height: '140px',
+              objectFit: 'contain',
+              marginBottom: '1.5rem',
+              filter: 'drop-shadow(0 0 24px rgba(255, 196, 0, 0.35))',
+            }}
+          />
+        </div>
+      </div>
       <div className="row mb-5">
         <div className="col-lg-8 mx-auto">
           <h1 className="mb-4 text-center">Explorador de GitHub</h1>
