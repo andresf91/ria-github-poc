@@ -24,7 +24,9 @@ services:
     container_name: github-explorer-dev
     working_dir: /app
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
     ports:
       - "5173:5173"
     command: npm run dev
