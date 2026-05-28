@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { searchUsers } from '../services/github'
 import Cargando from '../components/Cargando'
@@ -10,20 +10,28 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [searched, setSearched] = useState(false)
+  const abortRef = useRef(null)
 
   const handleSearch = async (e) => {
     e.preventDefault()
     if (!query.trim()) return
 
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
     setLoading(true)
     setError(null)
     try {
-      const result = await searchUsers(query)
+      const result = await searchUsers(query, 1, abortRef.current.signal)
       setUsers(result.users)
       setSearched(true)
     } catch (err) {
-      setError('No pudimos buscar usuarios. Intenta nuevamente.')
-      setUsers([])
+      if (err.name !== 'CanceledError') {
+        setError(err.isRateLimit
+          ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
+          : 'No pudimos buscar usuarios. Intenta nuevamente.')
+        setUsers([])
+      }
     } finally {
       setLoading(false)
     }
@@ -60,6 +68,7 @@ export default function Home() {
                 className="form-control"
                 placeholder="Busca un usuario de GitHub..."
                 value={query}
+                maxLength={100}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <button className="btn btn-primary" type="submit">

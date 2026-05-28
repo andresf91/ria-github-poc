@@ -10,20 +10,26 @@ export default function Popular() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchTrending = async () => {
       setLoading(true)
       setError(null)
       try {
-        const result = await getTrendingRepositories()
+        const result = await getTrendingRepositories(1, controller.signal)
         setRepos(result.repositories)
       } catch (err) {
-        setError('No pudimos cargar los repositorios trending.')
+        if (err.name !== 'CanceledError') {
+          setError(err.isRateLimit
+            ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
+            : 'No pudimos cargar los repositorios trending.')
+        }
       } finally {
         setLoading(false)
       }
     }
 
     fetchTrending()
+    return () => controller.abort()
   }, [])
 
   const handleRetry = () => {
@@ -35,7 +41,7 @@ export default function Popular() {
 
   return (
     <div className="container py-4">
-      <h1 className="mb-4">📈 Repositorios Populares</h1>
+      <h1 className="mb-4">Repositorios Populares</h1>
       <p className="text-muted mb-4">Repositorios más populares creados en el último mes</p>
 
       {repos.length === 0 ? (
@@ -46,7 +52,7 @@ export default function Popular() {
             <div key={repo.id} className="col-12">
               <Link to={`/repo/${repo.owner.login}/${repo.name}`} className="text-decoration-none">
                 <div className="card h-100 border-0 shadow-sm"
-                     style={{ 
+                     style={{
                        cursor: 'pointer',
                        transition: 'transform 0.2s, box-shadow 0.2s'
                      }}

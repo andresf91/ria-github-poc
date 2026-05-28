@@ -30,7 +30,7 @@ import {
 // Obtener la instancia mockeada
 const getMockApi = () => axios.create()
 
-describe('GitHub Service — searchUsers', () => {
+describe('GitHub Service - searchUsers', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar users y total cuando la API responde correctamente', async () => {
@@ -56,7 +56,7 @@ describe('GitHub Service — searchUsers', () => {
   })
 })
 
-describe('GitHub Service — getUserDetails', () => {
+describe('GitHub Service - getUserDetails', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar los datos del usuario', async () => {
@@ -71,8 +71,11 @@ describe('GitHub Service — getUserDetails', () => {
   })
 })
 
-describe('GitHub Service — getTrendingRepositories', () => {
-  beforeEach(() => vi.clearAllMocks())
+describe('GitHub Service - getTrendingRepositories', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    sessionStorage.clear()
+  })
 
   it('debería retornar repositories y total', async () => {
     const mockApi = getMockApi()
@@ -101,7 +104,7 @@ describe('GitHub Service — getTrendingRepositories', () => {
   })
 })
 
-describe('GitHub Service — getUserActivity', () => {
+describe('GitHub Service - getUserActivity', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar array vacío si la API falla (comportamiento tolerante a fallos)', async () => {

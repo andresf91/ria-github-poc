@@ -4,6 +4,14 @@ import { getRepositoryDetails } from '../services/github'
 import Cargando from '../components/Cargando'
 import MensajeError from '../components/MensajeError'
 
+const getFavorites = () => {
+  try {
+    return JSON.parse(localStorage.getItem('favoriteRepos') || '[]')
+  } catch {
+    return []
+  }
+}
+
 export default function DetalleRepo() {
   const { owner, repo } = useParams()
   const [repository, setRepository] = useState(null)
@@ -12,30 +20,35 @@ export default function DetalleRepo() {
   const [isFavorite, setIsFavorite] = useState(false)
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchRepo = async () => {
       setLoading(true)
       setError(null)
       try {
-        const repoData = await getRepositoryDetails(owner, repo)
+        const repoData = await getRepositoryDetails(owner, repo, controller.signal)
         setRepository(repoData)
-        // Verificar si está en favoritos
-        const favorites = JSON.parse(localStorage.getItem('favoriteRepos') || '[]')
+        const favorites = getFavorites()
         setIsFavorite(favorites.some(r => r.id === repoData.id))
       } catch (err) {
-        setError('No pudimos cargar los detalles del repositorio.')
+        if (err.name !== 'CanceledError') {
+          setError(err.isRateLimit
+            ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
+            : 'No pudimos cargar los detalles del repositorio.')
+        }
       } finally {
         setLoading(false)
       }
     }
 
     fetchRepo()
+    return () => controller.abort()
   }, [owner, repo])
 
   const handleAddToFavorites = () => {
     if (!repository) return
-    const favorites = JSON.parse(localStorage.getItem('favoriteRepos') || '[]')
+    const favorites = getFavorites()
     const index = favorites.findIndex(r => r.id === repository.id)
-    
+
     if (index > -1) {
       favorites.splice(index, 1)
     } else {
@@ -46,7 +59,7 @@ export default function DetalleRepo() {
         url: repository.html_url,
       })
     }
-    
+
     localStorage.setItem('favoriteRepos', JSON.stringify(favorites))
     setIsFavorite(!isFavorite)
   }
@@ -74,7 +87,7 @@ export default function DetalleRepo() {
                   <h1 className="mb-2">{repository.name}</h1>
                   <p className="text-muted mb-0">
                     <Link to={`/user/${repository.owner.login}`} className="text-decoration-none">
-                      👤 {repository.owner.login}
+                      {repository.owner.login}
                     </Link>
                   </p>
                 </div>
@@ -94,25 +107,25 @@ export default function DetalleRepo() {
                 <div className="col-auto">
                   <div>
                     <small className="text-muted d-block">Estrellas</small>
-                    <h5>⭐ {repository.stargazers_count.toLocaleString()}</h5>
+                    <h5>{repository.stargazers_count.toLocaleString()}</h5>
                   </div>
                 </div>
                 <div className="col-auto">
                   <div>
                     <small className="text-muted d-block">Forks</small>
-                    <h5>🍴 {repository.forks_count.toLocaleString()}</h5>
+                    <h5>{repository.forks_count.toLocaleString()}</h5>
                   </div>
                 </div>
                 <div className="col-auto">
                   <div>
                     <small className="text-muted d-block">Watchers</small>
-                    <h5>👁️ {repository.watchers_count.toLocaleString()}</h5>
+                    <h5>{repository.watchers_count.toLocaleString()}</h5>
                   </div>
                 </div>
                 <div className="col-auto">
                   <div>
                     <small className="text-muted d-block">Issues Abiertas</small>
-                    <h5>⚠️ {repository.open_issues_count}</h5>
+                    <h5>{repository.open_issues_count}</h5>
                   </div>
                 </div>
               </div>

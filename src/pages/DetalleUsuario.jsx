@@ -13,26 +13,32 @@ export default function DetalleUsuario() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchData = async () => {
       setLoading(true)
       setError(null)
       try {
         const [userRes, activityRes, reposRes] = await Promise.all([
-          getUserDetails(username),
-          getUserActivity(username),
-          getUserRepositories(username),
+          getUserDetails(username, controller.signal),
+          getUserActivity(username, controller.signal),
+          getUserRepositories(username, 1, controller.signal),
         ])
         setUser(userRes)
         setActivity(activityRes)
-        setRepos(reposRes.slice(0, 6)) // Mostrar solo los 6 primeros
+        setRepos(reposRes.slice(0, 6))
       } catch (err) {
-        setError('No pudimos cargar los datos del usuario.')
+        if (err.name !== 'CanceledError') {
+          setError(err.isRateLimit
+            ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
+            : 'No pudimos cargar los datos del usuario.')
+        }
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
+    return () => controller.abort()
   }, [username])
 
   const handleRetry = () => {
@@ -44,13 +50,13 @@ export default function DetalleUsuario() {
   if (!user) return <MensajeError message="Usuario no encontrado" onRetry={handleRetry} />
 
   const eventTypeMap = {
-    PushEvent: '📤 Push',
-    PullRequestEvent: '🔀 Pull Request',
-    CreateEvent: '✨ Creación',
-    DeleteEvent: '🗑️ Eliminación',
-    IssuesEvent: '⚠️ Issue',
-    ForkEvent: '🍴 Fork',
-    WatchEvent: '⭐ Star',
+    PushEvent: 'Push',
+    PullRequestEvent: 'Pull Request',
+    CreateEvent: 'Creación',
+    DeleteEvent: 'Eliminación',
+    IssuesEvent: 'Issue',
+    ForkEvent: 'Fork',
+    WatchEvent: 'Star',
   }
 
   return (
@@ -61,7 +67,6 @@ export default function DetalleUsuario() {
 
       <div className="row">
         <div className="col-lg-8 mx-auto">
-          {/* Tarjeta de perfil */}
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-body">
               <div className="row">
@@ -120,7 +125,6 @@ export default function DetalleUsuario() {
             </div>
           </div>
 
-          {/* Actividad reciente */}
           {activity.length > 0 && (
             <div className="card border-0 shadow-sm mb-4">
               <div className="card-header bg-transparent border-bottom border-secondary">
@@ -150,7 +154,6 @@ export default function DetalleUsuario() {
             </div>
           )}
 
-          {/* Repositorios destacados */}
           {repos.length > 0 && (
             <div>
               <h5 className="mb-3">Repositorios Destacados</h5>
@@ -158,8 +161,8 @@ export default function DetalleUsuario() {
                 {repos.map((repo) => (
                   <div key={repo.id} className="col-md-6">
                     <Link to={`/repo/${repo.owner.login}/${repo.name}`} className="text-decoration-none">
-                      <div className="card h-100 border-0 shadow-sm" 
-                           style={{ 
+                      <div className="card h-100 border-0 shadow-sm"
+                           style={{
                              cursor: 'pointer',
                              transition: 'transform 0.2s, box-shadow 0.2s'
                            }}
