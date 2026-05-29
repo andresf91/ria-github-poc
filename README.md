@@ -68,6 +68,23 @@ npm run build
 npm run preview
 ```
 
+### Con Docker
+
+Requisitos previos: tener **Docker Desktop** instalado y en ejecución.
+
+```bash
+# Construir la imagen y levantar el contenedor
+docker-compose up --build
+```
+
+La aplicación quedará disponible en `http://localhost:3000`.
+
+Para detenerlo:
+
+```bash
+docker-compose down
+```
+
 ## 🧪 Testing y Performance
 
 ### Ejecutar Tests
