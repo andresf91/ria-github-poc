@@ -1,5 +1,3 @@
-/*
-
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -10,7 +8,6 @@ vi.mock('../src/services/github', () => ({
   getRepositoryDetails: vi.fn(),
 }))
 
-// Helper para renderizar con router params
 const renderWithRouter = (owner, repo) =>
   render(
     <MemoryRouter initialEntries={[`/repo/${owner}/${repo}`]}>
@@ -46,9 +43,8 @@ describe('DetalleRepo Component', () => {
   })
 
   it('debería mostrar el spinner mientras carga', () => {
-    github.getRepositoryDetails.mockReturnValue(new Promise(() => {})) // nunca resuelve
+    github.getRepositoryDetails.mockReturnValue(new Promise(() => {}))
     renderWithRouter('facebook', 'react')
-    // Cargando usa un spinner de Bootstrap
     expect(document.querySelector('.spinner-border') || screen.queryByText(/cargando/i)).toBeTruthy()
   })
 
@@ -62,7 +58,7 @@ describe('DetalleRepo Component', () => {
 
     expect(screen.getByText(/A JavaScript library/i)).toBeInTheDocument()
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
-    expect(screen.getByText('MIT License')).toBeInTheDocument()
+    expect(screen.getAllByText('MIT License').length).toBeGreaterThan(0)
   })
 
   it('debería agregar y quitar de favoritos en localStorage', async () => {
@@ -74,12 +70,10 @@ describe('DetalleRepo Component', () => {
     const favBtn = document.querySelector('.btn-outline-warning, .btn-warning')
     expect(favBtn).toBeTruthy()
 
-    // Agregar a favoritos
     fireEvent.click(favBtn)
     const saved = JSON.parse(localStorage.getItem('favoriteRepos') || '[]')
     expect(saved.some((r) => r.id === mockRepo.id)).toBe(true)
 
-    // Quitar de favoritos
     fireEvent.click(favBtn)
     const afterRemove = JSON.parse(localStorage.getItem('favoriteRepos') || '[]')
     expect(afterRemove.some((r) => r.id === mockRepo.id)).toBe(false)
@@ -94,4 +88,3 @@ describe('DetalleRepo Component', () => {
     })
   })
 })
-*/

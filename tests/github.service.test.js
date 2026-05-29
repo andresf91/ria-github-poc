@@ -1,23 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import axios from 'axios'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock de axios antes de importar el servicio
-vi.mock('axios', () => {
+const { mockApi } = vi.hoisted(() => {
   const mockApi = {
     get: vi.fn(),
-    interceptors: {
-      response: { use: vi.fn() },
-    },
+    interceptors: { response: { use: vi.fn() } },
   }
-  return {
-    default: {
-      create: vi.fn(() => mockApi),
-    },
-    __mockApi: mockApi,
-  }
+  return { mockApi }
 })
 
-// Importar después del mock
+vi.mock('axios', () => ({
+  default: { create: vi.fn(() => mockApi) },
+}))
+
 import {
   searchUsers,
   getUserDetails,
@@ -27,19 +21,12 @@ import {
   getRepositoryDetails,
 } from '../src/services/github'
 
-// Obtener la instancia mockeada
-const getMockApi = () => axios.create()
-
 describe('GitHub Service - searchUsers', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar users y total cuando la API responde correctamente', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockResolvedValueOnce({
-      data: {
-        items: [{ id: 1, login: 'torvalds' }],
-        total_count: 1,
-      },
+      data: { items: [{ id: 1, login: 'torvalds' }], total_count: 1 },
     })
 
     const result = await searchUsers('torvalds')
@@ -49,9 +36,7 @@ describe('GitHub Service - searchUsers', () => {
   })
 
   it('debería propagar el error cuando la API falla', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockRejectedValueOnce(new Error('Network error'))
-
     await expect(searchUsers('fail')).rejects.toThrow('Network error')
   })
 })
@@ -60,7 +45,6 @@ describe('GitHub Service - getUserDetails', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar los datos del usuario', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockResolvedValueOnce({
       data: { login: 'octocat', followers: 10000, public_repos: 42 },
     })
@@ -78,12 +62,8 @@ describe('GitHub Service - getTrendingRepositories', () => {
   })
 
   it('debería retornar repositories y total', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockResolvedValueOnce({
-      data: {
-        items: [{ id: 99, name: 'cool-lib', stargazers_count: 5000 }],
-        total_count: 1,
-      },
+      data: { items: [{ id: 99, name: 'cool-lib', stargazers_count: 5000 }], total_count: 1 },
     })
 
     const result = await getTrendingRepositories()
@@ -92,15 +72,44 @@ describe('GitHub Service - getTrendingRepositories', () => {
   })
 
   it('debería usar un filtro de fecha del último mes', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockResolvedValueOnce({ data: { items: [], total_count: 0 } })
 
     await getTrendingRepositories()
 
-    const callArgs = mockApi.get.mock.calls[0]
-    const queryParam = callArgs[1]?.params?.q || ''
+    const queryParam = mockApi.get.mock.calls[0][1]?.params?.q || ''
     expect(queryParam).toMatch(/created:>/)
     expect(queryParam).toMatch(/stars:>100/)
+  })
+})
+
+describe('GitHub Service - getUserRepositories', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('debería retornar el array de repositorios del usuario', async () => {
+    const mockRepos = [
+      { id: 1, name: 'linux', stargazers_count: 180000 },
+      { id: 2, name: 'subsurface', stargazers_count: 2000 },
+    ]
+    mockApi.get.mockResolvedValueOnce({ data: mockRepos })
+
+    const result = await getUserRepositories('torvalds')
+    expect(result).toHaveLength(2)
+    expect(result[0].name).toBe('linux')
+  })
+
+  it('debería solicitar los repos ordenados por estrellas descendente', async () => {
+    mockApi.get.mockResolvedValueOnce({ data: [] })
+
+    await getUserRepositories('torvalds')
+
+    const params = mockApi.get.mock.calls[0][1]?.params
+    expect(params.sort).toBe('stars')
+    expect(params.order).toBe('desc')
+  })
+
+  it('debería propagar el error cuando la API falla', async () => {
+    mockApi.get.mockRejectedValueOnce(new Error('Not found'))
+    await expect(getUserRepositories('ghost')).rejects.toThrow('Not found')
   })
 })
 
@@ -108,7 +117,6 @@ describe('GitHub Service - getUserActivity', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('debería retornar array vacío si la API falla (comportamiento tolerante a fallos)', async () => {
-    const mockApi = getMockApi()
     mockApi.get.mockRejectedValueOnce(new Error('403 Forbidden'))
 
     const result = await getUserActivity('someuser')
