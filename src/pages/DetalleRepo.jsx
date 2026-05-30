@@ -25,22 +25,26 @@ export default function DetalleRepo() {
       setLoading(true)
       setError(null)
       try {
+        // Pide los datos del repositorio a la api de GitHub
         const repoData = await getRepositoryDetails(owner, repo, controller.signal)
+        // Guarda el repositorio y marca si ya esta en la lista de favoritos
         setRepository(repoData)
         const favorites = getFavorites()
         setIsFavorite(favorites.some(r => r.id === repoData.id))
+        setLoading(false)
       } catch (err) {
+        // Ignora cancelaciones propias, solo registra y muestra errores reales
         if (err.name !== 'CanceledError') {
           setError(err.isRateLimit
             ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
             : 'No pudimos cargar los detalles del repositorio.')
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchRepo()
+    // Cancela el pedido pendiente si el componente se desmonta o cambian el dueño o el nombre del repositorio
     return () => controller.abort()
   }, [owner, repo])
 

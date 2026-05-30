@@ -11,32 +11,50 @@ export default function Popular() {
 
   useEffect(() => {
     const controller = new AbortController()
+
+    // Si el API no responde en 2 segundos, muestra el mensaje de error.
+    const timeoutId = setTimeout(() => {
+      setError('No pudimos cargar los repositorios trending.')
+      setLoading(false)
+    }, 2000)
+
     const fetchTrending = async () => {
       setLoading(true)
       setError(null)
       try {
         const result = await getTrendingRepositories(1, controller.signal)
+        clearTimeout(timeoutId)
         setRepos(result.repositories)
+        setError(null)
+        setLoading(false)
       } catch (err) {
+        clearTimeout(timeoutId)
         if (err.name !== 'CanceledError') {
           setError(err.isRateLimit
             ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
             : 'No pudimos cargar los repositorios trending.')
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchTrending()
-    return () => controller.abort()
+    return () => {
+      controller.abort()
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   const handleRetry = () => {
     window.location.reload()
   }
 
-  if (loading) return <Cargando />
+  if (loading) return (
+    <div className="container py-5 text-center">
+      <div className="spinner-border mb-3" role="status" />
+      <p className="text-muted">Buscando repositorios...</p>
+    </div>
+  )
   if (error) return <MensajeError message={error} onRetry={handleRetry} />
 
   return (

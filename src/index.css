@@ -53,6 +53,10 @@ html, body, #root {
   color: #c9d1d9;
 }
 
+.form-control::placeholder {
+  color: #8b949e;
+}
+
 .form-control:focus {
   background-color: #0d1117;
   border-color: #58a6ff;
@@ -122,4 +126,8 @@ a:hover {
 
 .text-muted {
   color: white !important;
+}
+
+.list-group-item {
+  color: #c9d1d9;
 }
