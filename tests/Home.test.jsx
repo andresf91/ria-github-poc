@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import Home from '../pages/Home'
-import * as github from '../services/github'
+import { MemoryRouter } from 'react-router-dom'
+import Home from '../src/pages/Home'
+import * as github from '../src/services/github'
 
 // Mock del servicio de GitHub
-vi.mock('../services/github', () => ({
+vi.mock('../src/services/github', () => ({
   searchUsers: vi.fn(),
 }))
 
@@ -13,13 +14,15 @@ describe('Home Component', () => {
     vi.clearAllMocks()
   })
 
+  const renderHome = () => render(<MemoryRouter><Home /></MemoryRouter>)
+
   it('debería renderizar el formulario de búsqueda', () => {
-    render(<Home />)
+    renderHome()
     expect(screen.getByPlaceholderText(/Busca un usuario/i)).toBeInTheDocument()
   })
 
   it('debería mostrar mensaje cuando no hay búsqueda', () => {
-    render(<Home />)
+    renderHome()
     expect(screen.getByText(/Ingresa un nombre de usuario/i)).toBeInTheDocument()
   })
 
@@ -33,14 +36,14 @@ describe('Home Component', () => {
       total: 1,
     })
 
-    render(<Home />)
-    
+    renderHome()
+
     const input = screen.getByPlaceholderText(/Busca un usuario/i)
     fireEvent.change(input, { target: { value: 'torvalds' } })
     fireEvent.click(screen.getByRole('button', { name: /Buscar/i }))
 
     await waitFor(() => {
-      expect(github.searchUsers).toHaveBeenCalledWith('torvalds')
+      expect(github.searchUsers).toHaveBeenCalledWith('torvalds', expect.anything(), expect.anything())
     })
 
     await waitFor(() => {
@@ -51,8 +54,8 @@ describe('Home Component', () => {
   it('debería mostrar error cuando falla la búsqueda', async () => {
     github.searchUsers.mockRejectedValueOnce(new Error('Network error'))
 
-    render(<Home />)
-    
+    renderHome()
+
     const input = screen.getByPlaceholderText(/Busca un usuario/i)
     fireEvent.change(input, { target: { value: 'test' } })
     fireEvent.click(screen.getByRole('button', { name: /Buscar/i }))
