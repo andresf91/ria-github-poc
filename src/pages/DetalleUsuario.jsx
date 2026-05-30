@@ -18,26 +18,30 @@ export default function DetalleUsuario() {
       setLoading(true)
       setError(null)
       try {
+        // Lanza los tres pedidos al mismo tiempo para reducir la espera total
         const [userRes, activityRes, reposRes] = await Promise.all([
           getUserDetails(username, controller.signal),
           getUserActivity(username, controller.signal),
           getUserRepositories(username, 1, controller.signal),
         ])
+        // Guarda los resultados y apaga el indicador de carga
         setUser(userRes)
         setActivity(activityRes)
         setRepos(reposRes.slice(0, 6))
+        setLoading(false)
       } catch (err) {
+        // Ignora cancelaciones propias, solo registra y muestra errores reales
         if (err.name !== 'CanceledError') {
           setError(err.isRateLimit
             ? 'Límite de la API de GitHub alcanzado. Esperá unos minutos e intentá nuevamente.'
             : 'No pudimos cargar los datos del usuario.')
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchData()
+    // Cancela el pedido pendiente si el componente se desmonta o cambia el nombre de usuario
     return () => controller.abort()
   }, [username])
 
