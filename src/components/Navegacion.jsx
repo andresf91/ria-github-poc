@@ -54,6 +54,11 @@ export default function Navegacion() {
                 Inicio
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/favorites">
+                Favoritos
+              </Link>
+            </li>
 
             {/* Trending con hover preview */}
             <li
