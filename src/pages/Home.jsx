@@ -46,8 +46,9 @@ export default function Home() {
       <div className="row mb-4">
         <div className="col-lg-8 mx-auto text-center">
           <img
-            src="/logo.png"
+            src="/logo-280x280.webp"
             alt="GitHub All Stars"
+            fetchpriority="high"
             style={{
               width: '140px',
               height: '140px',
