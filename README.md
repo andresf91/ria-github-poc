@@ -120,19 +120,41 @@ Los tests E2E cubren 2 flujos críticos: búsqueda de usuarios y repositorios tr
 
 Cuando un test falla en CI (GitHub Actions), se sube automáticamente un reporte con screenshots, videos y trace interactivo.
 
-### Lighthouse Score (Chrome DevTools)
+### Auditoría Lighthouse
 
-Requisitos:
-- Performance: > 80
-- Accessibility: > 80
-- Best Practices: > 80
-- SEO: > 80
+> Correr siempre contra el **build de producción**, nunca contra `npm run dev`. El servidor de desarrollo no minifica ni comprime, lo que produce resultados distorsionados.
 
-**Pasos para evaluar:**
-1. Abrir la aplicación en Chrome
-2. Presionar F12 (DevTools)
-3. Ir a la pestaña "Lighthouse"
-4. Seleccionar "Analyze page load"
+**Con Vite preview (puerto 4173):**
+
+```bash
+# Terminal 1
+npm run build
+npm run preview
+
+# Terminal 2
+npm run lighthouse
+```
+
+**Con Docker (puerto 3000):**
+
+```bash
+# Terminal 1
+docker-compose up --build
+
+# Terminal 2
+npm run lighthouse:docker
+```
+
+En ambos casos se genera `informe-lighthouse.html` en la raíz del proyecto y se abre automáticamente en el navegador.
+
+**Scores actuales y mínimos esperados:**
+
+| Categoría | Score actual | Mínimo esperado |
+|---|---|---|
+| Rendimiento | 99 | 80 |
+| Accesibilidad | 100 | 80 |
+| Prácticas recomendadas | 100 | 80 |
+| SEO | 100 | 80 |
 
 ## 📁 Estructura del Proyecto
 
@@ -241,12 +263,12 @@ npm run build
 ## 📊 Video Demo
 
 Video de 30 segundos mostrando:
-1. Búsqueda de usuario (ej: "torvalds")
+1. Búsqueda de usuario (ej: "agesic")
 2. Navegación a detalle de usuario
 3. Visualización de repositorios trending
 4. Acceso a detalles de repositorio
 
-📹 Link: `[agregar link a video aquí]`
+📹 Link: [Video](https://drive.google.com/file/d/1ewMkM0jVKI5A4yjPm-4oQ4fVa4byEGAL/view?usp=drive_link)
 
 ## 🎓 Presentación
 
@@ -259,7 +281,7 @@ Video de 30 segundos mostrando:
 6. Demostración en Vivo
 7. Conclusiones y Próximos Pasos
 
-📊 Link: `[agregar link a presentación aquí]`
+📊 Link: [Presentación](https://docs.google.com/presentation/d/17qpOX5XQrkksjObsX6lkRmM9O3HXaWLngQU1XhXg44o/edit?usp=sharing)
 
 ## 🐛 Troubleshooting
 
@@ -287,9 +309,11 @@ MIT License - Proyecto académico RIA 2026
 
 ## ✨ Créditos
 
+- **Estudiantes**: Nicolás Correa Bardanca - Andrés Fernández
 - **Docente**: Andrés Pastorini
 - **Curso**: Rich Internet Applications 2026
-- **Universidad**: [Nombre de institución]
+- **Carrera**: Tecnólogo en Informática
+- **Institución**: UTU - UDELAR - UTEC
 
 ---
 

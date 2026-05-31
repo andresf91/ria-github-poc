@@ -12,7 +12,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "lint": "eslint src",
-    "lighthouse": "lighthouse http://localhost:4173 --output html --output-path informe-lighthouse.html --locale es --view"
+    "lighthouse": "lighthouse http://localhost:4173 --output html --output-path informe-lighthouse.html --locale es --view",
+    "lighthouse:docker": "lighthouse http://localhost:3000 --output html --output-path informe-lighthouse.html --locale es --view"
   },
   "dependencies": {
     "axios": "1.16.0",
