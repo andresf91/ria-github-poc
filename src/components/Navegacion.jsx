@@ -43,6 +43,7 @@ export default function Navegacion() {
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          aria-label="Abrir menú de navegación"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
