@@ -13,12 +13,12 @@ Aplicación **Rich Internet Application** que permite explorar usuarios y reposi
 
 ## 🛠 Stack Tecnológico
 
-- **Framework**: React 18
-- **Router**: React Router v6
+- **Framework**: React 19
+- **Router**: React Router v7
 - **UI Framework**: Bootstrap 5
 - **HTTP Client**: Axios
 - **Build Tool**: Vite
-- **Testing**: Vitest + React Testing Library
+- **Testing**: Vitest + React Testing Library + Playwright (E2E)
 - **Styling**: CSS personalizado con variables
 
 ### APIs Utilizadas
@@ -42,7 +42,7 @@ Aplicación **Rich Internet Application** que permite explorar usuarios y reposi
 ## ⚙️ Instalación
 
 ### Requisitos previos
-- Node.js >= 16
+- Node.js >= 20
 - npm o yarn
 
 ### Pasos
@@ -87,11 +87,38 @@ docker-compose down
 
 ## 🧪 Testing y Performance
 
-### Ejecutar Tests
+### Tests unitarios (Vitest)
 
 ```bash
+# Correr los 33 tests unitarios
 npm test
+
+# Modo watch
+npm run test -- --watch
+
+# Con cobertura
+npm run test -- --coverage
 ```
+
+### Tests E2E (Playwright)
+
+```bash
+# Primera vez: instalar browsers
+npx playwright install chromium
+
+# Correr los tests E2E
+npm run test:e2e
+
+# Con interfaz visual (recomendado para debug)
+npm run test:e2e:ui
+
+# Con navegador visible
+npm run test:e2e:headed
+```
+
+Los tests E2E cubren 2 flujos críticos: búsqueda de usuarios y repositorios trending con toggle de favoritos. Usan mocks de red via `page.route()` para no depender del rate limit de GitHub.
+
+Cuando un test falla en CI (GitHub Actions), se sube automáticamente un reporte con screenshots, videos y trace interactivo.
 
 ### Lighthouse Score (Chrome DevTools)
 
@@ -127,9 +154,16 @@ github-explorer-ria/
 │   ├── main.jsx               # Punto de entrada
 │   └── index.css              # Estilos globales
 ├── tests/
+│   ├── e2e/
+│   │   ├── busqueda-usuario.spec.js  # E2E: búsqueda → perfil de usuario
+│   │   └── trending-favoritos.spec.js # E2E: trending → detalle → favoritos
 │   └── ... (tests unitarios e integración)
+├── .github/
+│   └── workflows/
+│       └── playwright.yml     # CI: corre tests E2E en cada push/PR
 ├── index.html
 ├── vite.config.js
+├── playwright.config.js       # Configuración de Playwright
 ├── package.json
 ├── .gitignore
 └── README.md
