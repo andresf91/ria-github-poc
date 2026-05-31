@@ -7,7 +7,8 @@ on:
     branches: [main, master]
 
 jobs:
-  playwright:
+  e2e:
+    name: Tests E2E (Playwright)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +20,8 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
       - name: Instalar browsers de Playwright
         run: npx playwright install --with-deps chromium
