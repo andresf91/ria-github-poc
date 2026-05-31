@@ -1,5 +1,5 @@
 # Multi-stage build para optimizar imagen
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -9,6 +9,7 @@ RUN npm ci
 
 # Build de la aplicación
 COPY . .
+RUN npm run test
 RUN npm run build
 
 # Etapa final - servir con Nginx
