@@ -1,14 +1,18 @@
 # Multi-stage build para optimizar imagen
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Evita que Playwright intente descargar browsers durante npm ci
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
 # Instalar dependencias
 COPY package*.json ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 
 # Build de la aplicación
 COPY . .
+RUN npm run test
 RUN npm run build
 
 # Etapa final - servir con Nginx
